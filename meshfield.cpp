@@ -153,8 +153,8 @@ void Meshfield_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 			g_MeshFieldIndex[index + 4] = g_MeshFieldIndex[index + 1];
 			g_MeshFieldIndex[index + 5] = g_MeshFieldIndex[index + 2] + 1;*/
 
-			g_MeshFieldIndex[index + 0] = h + (v + 0) * MESH_H_VERTEX_COUNT;
-			g_MeshFieldIndex[index + 1] = h + (v + 1) * MESH_H_VERTEX_COUNT + 1;
+			g_MeshFieldIndex[index + 0] = static_cast<unsigned short>(h + (v + 0) * MESH_H_VERTEX_COUNT);
+			g_MeshFieldIndex[index + 1] = static_cast<unsigned short>(h + (v + 1) * MESH_H_VERTEX_COUNT + 1);
 			g_MeshFieldIndex[index + 2] = g_MeshFieldIndex[index + 0] + 1;
 			g_MeshFieldIndex[index + 3] = g_MeshFieldIndex[index + 0];
 			g_MeshFieldIndex[index + 4] = g_MeshFieldIndex[index + 1] - 1;

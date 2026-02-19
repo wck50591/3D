@@ -14,6 +14,7 @@ using namespace DirectX;
 #include "debug_ostream.h"
 #include "sprite.h"
 #include "texture.h"
+#include "shader_sprite_effect.h"
 
 static constexpr int NUM_VERTEX = 4; // 頂点数
 
@@ -36,6 +37,7 @@ struct Vertex
 	XMFLOAT2 uv;	//uv/テクスチャ座標
 };
 
+ShaderSpriteEffect* effect = nullptr;
 
 void Sprite_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
@@ -63,6 +65,7 @@ void Sprite_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 
 void Sprite_Finalize(void)
 {
+	//effect->Finalize();
 	SAFE_RELEASE(g_pTexture);
 	SAFE_RELEASE(g_pVertexBuffer);
 }
@@ -417,134 +420,55 @@ void Sprite_Draw(int texid, int px, int py, int pw, int ph, XMMATRIX scale, XMMA
 	// ポリゴン描画命令発行
 	g_pContext->Draw(NUM_VERTEX, 0);
 }
-//----------------rotation based on pointer(center)--------------------
-//void Sprite_Draw(int texid, float dx, float dy, float dw, float dh, int px, int py, int pw, int ph, float angle, const XMFLOAT4& color)
-//{
-//	// シェーダーを描画パイプラインに設定
-//	Shader_Begin();
-//
-//	// 頂点バッファをロックする
-//	D3D11_MAPPED_SUBRESOURCE msr;
-//	g_pContext->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
-//
-//	// 頂点バッファへの仮想ポインタを取得
-//	Vertex* v = (Vertex*)msr.pData;
-//
-//	// 画面の左上から右下に向かう線分を描画する
-//	v[0].position = { dx     , dy, 0.0f };
-//	v[1].position = { dx + dw, dy, 0.0f };
-//	v[2].position = { dx     , dy + dh, 0.0f };
-//	v[3].position = { dx + dw, dy + dh, 0.0f };
-//
-//	v[0].color = color;
-//	v[1].color = color;
-//	v[2].color = color;
-//	v[3].color = color;
-//
-//	float tw = (float)Texture_Width(texid);
-//	float th = (float)Texture_Height(texid);
-//
-//	// inner_pic size + inner_pic position / pic size
-//	float u0 = px / tw;
-//	float v0 = py / th;
-//	float u1 = (px + pw) / tw;
-//	float v1 = (py + ph) / th;
-//
-//	v[0].uv = { u0, v0 };
-//	v[1].uv = { u1, v0 };
-//	v[2].uv = { u0, v1 };
-//	v[3].uv = { u1, v1 };
-//
-//	// 頂点バッファのロックを解除
-//	g_pContext->Unmap(g_pVertexBuffer, 0);
-//
-//	//回転行列をシェーダーに設定
-//	XMMATRIX rotation = XMMatrixRotationZ(angle);
-//	Shader_SetWorldMatrix(rotation);
-//
-//	// 頂点バッファを描画パイプラインに設定
-//	UINT stride = sizeof(Vertex);
-//	UINT offset = 0;
-//	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-//
-//	// プリミティブトポロジ設定
-//	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-//
-//	//テクスチャの設定
-//	Texture_SetTexture(texid);
-//
-//	// ポリゴン描画命令発行
-//	g_pContext->Draw(NUM_VERTEX, 0);
-//}
-//--------------------------END of rotation based on pointer(center)----------------
 
-//void Sprite_Draw(float dx, float dy, float dw, float dh)
-//{
-//	// シェーダーを描画パイプラインに設定
-//	Shader_Begin();
-//
-//	// 頂点バッファをロックする
-//	D3D11_MAPPED_SUBRESOURCE msr;
-//	g_pContext->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
-//
-//	// 頂点バッファへの仮想ポインタを取得
-//	Vertex* v = (Vertex*)msr.pData;
-//
-//	// 頂点情報を書き込み
-//	
-//	// 画面の左上から右下に向かう線分を描画する
-//	v[0].position = { dx      , dy	   , 0.0f };
-//	v[1].position = { dx + dw , dy	   , 0.0f };
-//	v[2].position = { dx      , dy + dh, 0.0f };
-//	v[3].position = { dx + dw , dy + dh, 0.0f };
-//
-//	v[0].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-//	v[1].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-//	v[2].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-//	v[3].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-//
-//	// inner_pic size * inner_pic position / pic size
-//	float u0 = 32.0f * 2.0f / 512.0f;
-//	float v0 = 32.0f * 3.0f / 512.0f;
-//	float u1 = 32.0f * 3.0f / 512.0f;
-//	float v1 = 32.0f * 4.0f / 512.0f;
-//
-//	v[0].uv = { u0, v0 };
-//	v[1].uv = { u1, v0 };
-//	v[2].uv = { u0, v1 };
-//	v[3].uv = { u1, v1 };
-//
-//	/*v[0].position = {SCREEN_WIDTH * 0.1f, SCREEN_HEIGHT * 0.1f, 0.0f};
-//	v[1].position = { SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.1f, 0.0f };
-//	v[2].position = { SCREEN_WIDTH * 0.1f, SCREEN_HEIGHT * 0.2f, 0.0f };
-//	v[3].position = { SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.2f, 0.0f };
-//
-//	v[4].position = { SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.2f, 0.0f };
-//	v[5].position = { SCREEN_WIDTH * 0.1f, SCREEN_HEIGHT * 0.2f, 0.0f };
-//	v[6].position = { SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.8f, 0.0f };
-//	v[7].position = { SCREEN_WIDTH * 0.1f, SCREEN_HEIGHT * 0.8f, 0.0f };
-//
-//	v[8].position = { SCREEN_WIDTH * 0.8f, SCREEN_HEIGHT * 0.8f, 0.0f };
-//	v[9].position = { SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.8f, 0.0f };
-//	v[10].position = { SCREEN_WIDTH * 0.8f, SCREEN_HEIGHT * 0.9f, 0.0f };
-//	v[11].position = { SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.9f, 0.0f };*/
-//
-//	// 頂点バッファのロックを解除
-//	g_pContext->Unmap(g_pVertexBuffer, 0);
-//
-//	// 頂点バッファを描画パイプラインに設定
-//	UINT stride = sizeof(Vertex);
-//	UINT offset = 0;
-//	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-//
-//	// 頂点シェーダーに変換行列を設定
-//	const float SCREEN_WIDTH = (float)Direct3D_GetBackBufferWidth();
-//	const float SCREEN_HEIGHT = (float)Direct3D_GetBackBufferHeight();
-//	Shader_SetMatrix(XMMatrixOrthographicOffCenterLH(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f));
-//
-//	// プリミティブトポロジ設定
-//	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-//
-//	// ポリゴン描画命令発行
-//	g_pContext->Draw(NUM_VERTEX, 0);
-//}
+void Sprite_DrawGlitch(int texid, float dx, float dy, float dw, float dh, const XMFLOAT4& color)
+{
+	// シェーダーを描画パイプラインに設定
+	effect->Begin();
+
+	// 頂点バッファをロックする
+	D3D11_MAPPED_SUBRESOURCE msr;
+	g_pContext->Map(g_pVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &msr);
+
+	// 頂点バッファへの仮想ポインタを取得
+	Vertex* v = (Vertex*)msr.pData;
+
+	// 画面の左上から右下に向かう線分を描画する
+	v[0].position = { dx     , dy, 0.0f };
+	v[1].position = { dx + dw, dy, 0.0f };
+	v[2].position = { dx     , dy + dh, 0.0f };
+	v[3].position = { dx + dw, dy + dh, 0.0f };
+
+	v[0].color = color;
+	v[1].color = color;
+	v[2].color = color;
+	v[3].color = color;
+
+	v[0].uv = { 0.0f, 0.0f };
+	v[1].uv = { 1.0f, 0.0f };
+	v[2].uv = { 0.0f, 1.0f };
+	v[3].uv = { 1.0f, 1.0f };
+
+	// 頂点バッファのロックを解除
+	g_pContext->Unmap(g_pVertexBuffer, 0);
+
+	//ワールド変換行列を設定
+	effect->SetWorldMatrix(XMMatrixIdentity());
+
+	// set glitch effect
+	effect->SetGlitch(1.0f,20.0f,100.0f);
+
+	// 頂点バッファを描画パイプラインに設定
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	g_pContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+
+	// プリミティブトポロジ設定
+	g_pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	//テクスチャの設定
+	Texture_SetTexture(texid);
+
+	// ポリゴン描画命令発行
+	g_pContext->Draw(NUM_VERTEX, 0);
+}

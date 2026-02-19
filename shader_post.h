@@ -19,11 +19,13 @@ struct PostCBuffer
 {
     DirectX::XMFLOAT4 color { 1.0f, 1.0f, 1.0f, 1.0f };
     float ivColor { 0.0f };
-    DirectX::XMFLOAT3 dum {};
+    float gamma { 1.0f };
+    DirectX::XMFLOAT2 dum {};
 };
 
 void ShaderPost_SetColor(const DirectX::XMFLOAT4& color);
 void ShaderPost_SetInverseColor(float ivColor);
+void ShaderPost_SetGamma(float gamma);
 
 void ShaderPost_Begin();
 

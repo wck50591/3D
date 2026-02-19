@@ -11,7 +11,8 @@ cbuffer PS_CONSTANT_BUFFER : register(b0)
 {
     float4 color;
     float ivColor;
-    float3 dum;
+    float gamma;
+    float2 dum;
 };
 
 struct PS_IN
@@ -26,9 +27,9 @@ SamplerState samp : register(s0); //テクスチャサンプラ
 float4 main(PS_IN pi) : SV_TARGET
 {
     //color
-    float4 c = tex.Sample(samp, pi.uv);
-    c.rgb = lerp(c.rgb, 1.0 - c.rgb, ivColor);
-    return float4(c.rgb, 1.0);
-    //return float4(1.0 - c.x, 1.0 - c.y, 1.0 - c.z, c.w);
+    float3 c = tex.Sample(samp, pi.uv).rgb;
+    c = pow(c, gamma);
+    c = lerp(c, 1.0 - c, ivColor);
+    return float4(c, 1.0);
     
 }

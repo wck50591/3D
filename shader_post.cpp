@@ -157,6 +157,14 @@ void ShaderPost_SetInverseColor(float ivColor)
 	g_pContext->UpdateSubresource(g_pPSConstantBuffer0, 0, nullptr, &g_PostCBuffer, 0, 0);
 }
 
+void ShaderPost_SetGamma(float gamma)
+{
+	g_PostCBuffer.gamma = gamma;
+
+	// 定数バッファに行列をセット
+	g_pContext->UpdateSubresource(g_pPSConstantBuffer0, 0, nullptr, &g_PostCBuffer, 0, 0);
+}
+
 void ShaderPost_Begin()
 {
 	// 頂点シェーダーとピクセルシェーダーを描画パイプラインに設定

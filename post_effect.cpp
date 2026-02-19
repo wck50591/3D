@@ -43,7 +43,7 @@ static PostScreen ps[6] = {
 
 };
 
-static void PostScreen_Draw();
+
 
 bool PostEffect_Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
@@ -104,7 +104,7 @@ void PostEffect_Clear()
 
 	g_pContext->ClearDepthStencilView(Direct3D_GetDepthStencilView(),D3D11_CLEAR_DEPTH, 1.0f, 0);
 	
-	g_pContext->OMSetRenderTargets(1, &g_pSceneRTV, Direct3D_GetDepthStencilView());
+	PostEffect_SetBackBuffer();
 }
 
 void PostEffect_Begin()
@@ -121,24 +121,36 @@ void PostEffect_Begin()
 	Direct3D_SetAlphaBlandNone();
 
 	ShaderPost_Begin();
-
-	PostScreen_Draw();
-
-	// reset to normal
-	Direct3D_SetBackBuffer();
-	Direct3D_SetDepthEnable(true);
-	Direct3D_SetAlphaBlendTranparent();
-
 }
 
 void PostEffect_End()
 {
 	g_pContext->PSSetShaderResources(0, 1, &g_pNullSRV);
+
+	// reset to normal
+	Direct3D_SetBackBuffer();
+	Direct3D_SetDepthEnable(true);
+	Direct3D_SetAlphaBlendTranparent();
 }
 
-void PostEffect_InverseColor(float strength)
+void PostEffect_Draw()
+{
+	PostScreen_Draw();
+}
+
+void PostEffect_SetBackBuffer()
+{
+	g_pContext->OMSetRenderTargets(1, &g_pSceneRTV, Direct3D_GetDepthStencilView());
+}
+
+void PostEffect_SetInverseColor(float strength)
 {
 	ShaderPost_SetInverseColor(strength);
+}
+
+void PostEffect_SetGamma(float strength)
+{
+	ShaderPost_SetGamma(strength);
 }
 
 void PostScreen_Draw() {

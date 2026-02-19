@@ -177,10 +177,10 @@ void Camera_Update(double elapsed_time)
 		position += XMVECTOR{ 0.0f, -1.0f, 0.0f } *CAMERA_MOVE_SPEED * (float)elapsed_time;// fps
 	}
 	if (KeyLogger_IsPressed(KK_Z)) {
-		g_Fov -= XMConvertToRadians(10) * elapsed_time;
+		g_Fov -= XMConvertToRadians(10) * static_cast<float>(elapsed_time);
 	}
 	if (KeyLogger_IsPressed(KK_C)) {
-		g_Fov += XMConvertToRadians(10) * elapsed_time;
+		g_Fov += XMConvertToRadians(10) * static_cast<float>(elapsed_time);
 	}
 
 	//äeéÌçXêVåãâ Çï€ë∂

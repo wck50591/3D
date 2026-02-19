@@ -66,6 +66,20 @@ void Scene_Draw()
 	}
 }
 
+void Scene_DrawNormal()
+{
+	switch (g_Scene)
+	{
+	case SCENE_TITLE:
+		break;
+	case SCENE_GAME:
+		Game_DrawNormal();
+		break;
+	case SCENE_RESULT:
+		break;
+	}
+}
+
 void Scene_Refresh()
 {
 	if (g_Scene != g_SceneNext) {

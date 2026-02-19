@@ -36,4 +36,8 @@ void Sprite_Draw(int texid, float dx, float dy, float dw, float dh, int px, int 
 // UVカット（表示サイズ変更）回転
 //void Sprite_Draw(int texid, float dx, float dy, float dw, float dh, int px, int py, int pw, int ph, XMMATRIX scale, XMMATRIX rotation, XMMATRIX translation, const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
 
+// draw with glitch effect
+void Sprite_DrawGlitch(int texid, float dx, float dy, float dw, float dh, const DirectX::XMFLOAT4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+
+
 #endif

@@ -68,7 +68,7 @@ void Billboard_SetViewMatrix(const DirectX::XMFLOAT4X4& view)
 }
 
 void Billboard_Draw(int texId, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT2& scale
-	, const DirectX::XMFLOAT4& color, float contrast, const XMFLOAT2& pivot)
+	, const DirectX::XMFLOAT4&, float, const XMFLOAT2& pivot)
 {
 
 	// シェーダーを描画パイプラインに設定

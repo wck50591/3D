@@ -25,7 +25,7 @@ public:
 
 	void Update(double elapsed_time) {
 		m_accumulated_time += elapsed_time;
-		XMStoreFloat3(&m_position, XMLoadFloat3(&m_position) + XMLoadFloat3(&m_velocity) * elapsed_time);
+		XMStoreFloat3(&m_position, XMLoadFloat3(&m_position) + XMLoadFloat3(&m_velocity) * static_cast<float>(elapsed_time));
 	}
 
 	const XMFLOAT3& GetPosition() const {

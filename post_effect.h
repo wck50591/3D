@@ -17,7 +17,11 @@ void PostEffect_Finalize();
 void PostEffect_Clear();
 void PostEffect_Begin();
 void PostEffect_End();
+void PostEffect_Draw();
 
-void PostEffect_InverseColor(float strength);
+void PostEffect_SetBackBuffer();
+void PostEffect_SetInverseColor(float strength);
+void PostEffect_SetGamma(float strength);
 
+void PostScreen_Draw();
 #endif // !POST_EFFECT_H

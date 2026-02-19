@@ -8,6 +8,7 @@ void Scene_Initialize();
 void Scene_Finalize();
 void Scene_Update(double elapsed_time);
 void Scene_Draw();
+void Scene_DrawNormal();
 void Scene_Refresh();
 
 enum Scene 

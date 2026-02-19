@@ -16,7 +16,8 @@ static XMFLOAT3 g_Position = {};
 
 void Sky_Initialize()
 {
-    g_pModelSky = ModelLoad("resource/model/sky.fbx", 25.0f, true);
+    g_pModelSky = ModelLoad("resource/model/sky2.fbx", 25.0f, true);
+
 }
 
 void Sky_Finalize()
@@ -34,5 +35,7 @@ void Sky_Draw()
     Shader3DUnlit_Begin();
 
     g_Position.y = 0;
-    ModelUnlitDraw(g_pModelSky,XMMatrixTranslationFromVector(XMLoadFloat3(&g_Position)));
+    XMMATRIX r = XMMatrixRotationX(XMConvertToRadians(90.0f));
+    r *= XMMatrixRotationY(-XMConvertToRadians(90.0f));
+    ModelUnlitDraw(g_pModelSky, r * XMMatrixTranslationFromVector(XMLoadFloat3(&g_Position)));
 }

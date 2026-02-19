@@ -30,6 +30,7 @@ using namespace DirectX;
 #include "Score.h"
 #include "fade.h"
 #include "Audio.h"
+#include "post_effect.h"
 
 #include "pad_input.h"
 #include <Xinput.h>
@@ -142,7 +143,7 @@ void Game_Initialize()
 	PlayerCamera_Initialize();
 	
 	Map_Initialize();
-	//Sky_Initialize();
+	Sky_Initialize();
 	Score_Initialize();
 
 	g_AnimPatternId = SpriteAnim_RegisterPattern(
@@ -160,12 +161,15 @@ void Game_Initialize()
 	g_GameTotalTime = 0.0;
 	Score_Reset();
 	Score_ShowScore(0);
+
+	PostEffect_SetGamma(1.0f);
+	PostEffect_SetInverseColor(0.0f);
 }
 
 void Game_Finalize()
 {
 	Score_Finalize();
-	//Sky_Finalize();
+	Sky_Finalize();
 	Map_Finalize();
 	PlayerCamera_Finalize();
 	Player_Finalize();
@@ -277,7 +281,7 @@ void Game_Update(double elapsed_time)
 			g_ScoreAcc -= add;
 		}
 
-		g_GameTime += elapsed_time;
+		g_GameTime += static_cast<float>(elapsed_time);
 		if (g_GameTime >= 10.0f) {
 			float speed = Player_GetCarSpeed();
 			speed -= 0.1f;
@@ -292,17 +296,8 @@ void Game_Update(double elapsed_time)
 	g_scale = (float)(sin(g_AccumulatedTime) * 5.0f);
 	g_scale = (float)((sin(g_AccumulatedTime) + 1.0f) * 0.5f * 5.0f);
 
-	/*if (KeyLogger_IsTrigger(KK_F)) {
-		g_CubePosition = Camera_GetPosition();
-		XMStoreFloat3(&g_CubeVelocity, XMLoadFloat3(&Camera_GetFront()) * 5.0f);
-	}
-
-	XMVECTOR cube_position = XMLoadFloat3(&g_CubePosition);
-	cube_position += XMLoadFloat3(&g_CubeVelocity) * (float)elapsed_time ;
-	XMStoreFloat3(&g_CubePosition,cube_position);*/
-
 	Player_Update(elapsed_time);
-	//Sky_SetPosition(Player_GetPosition());
+	Sky_SetPosition(Player_GetPosition());
 	if (g_IsDebug) {
 		Camera_Update(elapsed_time);
 	}
@@ -350,8 +345,8 @@ void Game_Update(double elapsed_time)
 
 	XMFLOAT3 p = Player_GetPosition();
 
-	const float HALF = 25.0f;
-	const float SIZE = HALF * 2.0f;
+	//const float HALF = 25.0f;
+	//const float SIZE = HALF * 2.0f;
 
 	const float HALFa = 25.0f;
 	const float SIZEa = 50.0f;
@@ -377,21 +372,14 @@ void Game_Draw()
 
 	Camera_SetMatrix(view, proj);
 
-	//Billboard_SetViewMatrix(mtxView);
-
-	//light_SetAmbient({1.0f, 1.0f, 1.0f});
 	light_SetAmbient({0.2f, 0.2f, 0.2f});
-	//light_SetAmbient({0.0f, 0.0f, 0.0f});
-	//XMVECTOR v = {-1.0f, -1.0f, 1.0f };
-	//v = XMVector3Normalize(v);
-	//light_SetDirectionalWorld({ 0.0f, -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 	light_SetDirectionalWorld({ 0.0f, -1.0f, 0.0f, 0.0f }, { 0.2f,0.2f,0.2f, 1.0f });
 
 	Direct3D_SetDepthEnable(false);
-	//Sky_Draw();
+	Sky_Draw();
 	Direct3D_SetDepthEnable(true);
 
-	Player_Draw();
+	
 #if defined(DEBUG) || defined(_DEBUG)
 	Collision_DebugDraw(Player_GetAABB(), { 1.0f,0.0f,0.0f,1.0f });
 #endif
@@ -399,26 +387,28 @@ void Game_Draw()
 
 	Map_Draw();
 
-	//Bullet_Draw();
-
 	Light_SetSpecularWorld(camera_position, 50.0f, { 1.0f,1.0f,1.0f,1.0f });
 
-	
+}
 
-	Direct3D_SetDepthEnable(false);
-	//Sky_Draw();
-	Direct3D_SetDepthEnable(true);
+void Game_DrawNormal()
+{
+	// draw after post effect (no effect)
+
+	Player_Draw();
+
+	Map_DrawNormal();
+
 	Direct3D_SetDepthDepthWriteDisable();
 
 	Direct3D_SetDepthEnable(false);
 
-
 	if (Player_IsGameover() && !g_ShowResult) {
-		Sprite_Draw(g_GameoverTexId, 
+		Sprite_Draw(g_GameoverTexId,
 			Direct3D_GetBackBufferWidth() * 0.5f - Texture_Width(g_GameoverTexId) * 0.5f,
 			Direct3D_GetBackBufferHeight() * 0.5f - Texture_Height(g_GameoverTexId) * 0.5f,
-			Texture_Width(g_GameoverTexId), 
-			Texture_Height(g_GameoverTexId)
+			static_cast<float>(Texture_Width(g_GameoverTexId)),
+			static_cast<float>(Texture_Height(g_GameoverTexId))
 		);
 	}
 
@@ -523,8 +513,8 @@ void Game_Draw()
 		Sprite_Draw(g_ResultOKTexId,
 			Direct3D_GetBackBufferWidth() * 0.5f - Texture_Width(g_ResultOKTexId) * scale * 0.5f + result_offset_x,
 			Direct3D_GetBackBufferHeight() * 0.5f - Texture_Height(g_ResultOKTexId) * scale * 0.5f + result_offset_y,
-			Texture_Width(g_ResultOKTexId)* scale,
-			Texture_Height(g_ResultOKTexId)* scale
+			Texture_Width(g_ResultOKTexId) * scale,
+			Texture_Height(g_ResultOKTexId) * scale
 		);
 	}
 

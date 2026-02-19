@@ -11,6 +11,13 @@
 #include <directXMath.h>
 #include "collision.h"
 
+static constexpr float TILE = 50.0f;
+static constexpr float HALF_X = 0.2f;
+static constexpr float HALF_Z = 0.5f;
+static constexpr float HEIGHT = 0.5f;
+static constexpr int SLOW_NUMBER = 3;
+static constexpr double SLOW_INVERSE_TIME = 3.0;
+
 void Player_Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& front);
 void Player_Finalize();
 void Player_Update(double elapsed_time);

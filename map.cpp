@@ -18,6 +18,8 @@ using namespace DirectX;
 #include "material.h"
 #include "time.h"
 #include <time.h>
+#include "direct3d.h"
+#include "post_effect.h"
 
 static constexpr int MAP_OBJECT_MAX = 1024;
 
@@ -61,7 +63,6 @@ void Map_Initialize()
 
 	g_RuntimeCount = 0;
 
-	//g_CubeTexIds[0] = Texture_Load(L"resource/texture/number_512x512.png", TRUE);
 	roadblock = ModelLoad("resource/model/roadblock.fbx", 0.2f, false);
 	tree = ModelLoad("resource/model/tree_2.fbx", 0.5f, false);
 	rock = ModelLoad("resource/model/rock.fbx", 1.0f, false);
@@ -74,13 +75,13 @@ void Map_Initialize()
 	float playerLocalZ = playerStartZ - baseZ;
 
 	const float safe_behind = 2.0f;
-	const float safe_ahead = 3.0f;
+	const float safe_ahead = 5.0f;
 	float safeMin = playerLocalZ - safe_behind;
 	float safeMax = playerLocalZ + safe_ahead;
 
 	float zLocal = 10.0f;
 	const float end_local_z = 48.0f;
-	const float step_min = 1.0f;
+	const float step_min = 3.0f;
 	const float step_max = 6.0f;
 
 	int lastLane = -1;
@@ -136,10 +137,10 @@ void Map_Initialize()
 		Map_AddObject(b);
 	}
 
-	for (float z = 25.0f; z >= -25.0f; z -= 2.0f)
+	for (float map_z = 25.0f; map_z >= -25.0f; map_z -= 2.0f)
 	{
-		Map_AddObject({ IV, {  2.0f, 0.5f, z }});
-		Map_AddObject({ IV, { -2.0f, 0.5f, z }});
+		Map_AddObject({ IV, {  2.0f, 0.5f, map_z }});
+		Map_AddObject({ IV, { -2.0f, 0.5f, map_z }});
 	}
 
 	for (int i = 0; i < g_RuntimeCount; ++i)
@@ -168,6 +169,7 @@ void Map_Finalize()
 
 void Map_Draw()
 {
+	
     Meshfield_Draw();
 
     XMFLOAT3 p = Player_GetPosition();
@@ -200,20 +202,61 @@ void Map_Draw()
 			{
 			case ROADBLOCK:
 			{
+				break;
+			}
+            case TREE:  ModelDraw(tree, mtxWorld); break;
+            case ROCK:  ModelDraw(rock, mtxWorld); break;
+            }
+        }
+    }
+
+}
+
+void Map_DrawNormal()
+{
+	XMFLOAT3 p = Player_GetPosition();
+	float baseZ = floorf(p.z / CHUNK_LENGTH) * CHUNK_LENGTH;
+
+	for (int i = -1; i <= 1; ++i)
+	{
+		float cz = baseZ + i * CHUNK_LENGTH;
+
+		for (int j = 0; j < g_RuntimeCount; ++j)
+		{
+			const MapObject& o = g_RuntimeObjects[j];
+
+			if (o.TypeId == FIELD) continue;
+
+			XMMATRIX mtxWorld = XMMatrixTranslation(
+				o.Position.x,
+				o.Position.y,
+				o.Position.z + cz
+			);
+
+			AABB worldAabb = o.Aabb;
+			worldAabb.min.z += cz;
+			worldAabb.max.z += cz;
+
+#if defined(DEBUG) || defined(_DEBUG)
+			Collision_DebugDraw(worldAabb);
+#endif
+			switch (o.TypeId)
+			{
+			case ROADBLOCK:
+			{
 				float t = (float)Time_GetTotal();
 				float glow = 0.5f + 0.5f * sinf(t * 3.0f);
 
 				Material_SetEmissive({ 0.8f, 0.4f, 0.1f, glow });
 				ModelDraw(roadblock, mtxWorld);
 				Material_SetEmissive({ 0,0,0,0 });
+
 				break;
 			}
-            case TREE:    ModelDraw(tree, mtxWorld); break;
-            case ROCK:    ModelDraw(rock, mtxWorld); break;
-            }
-        }
-    }
-
+			}
+		}
+	}
+	
 }
 
 int Map_GetObjectsCount()

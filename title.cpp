@@ -1,6 +1,7 @@
 // title.cpp
 #include "title.h"
 
+#include "my_math.h"
 #include "camera.h"
 #include "player_camera.h"
 #include "Audio.h"
@@ -46,6 +47,9 @@ void Title_Initialize()
 
 	Camera_Initialize();
 
+	PostEffect_SetGamma(1.0f);
+	PostEffect_SetInverseColor(0.0f);
+
 	Player_Initialize({ 0.0f,0.0f,-15.0f }, { 0.0f,0.0f,1.0f });
 	PlayerCamera_Initialize();
 	PlayerCamera_SetPosition(Player_GetPosition());
@@ -55,7 +59,7 @@ void Title_Initialize()
 	CameraRowMovementSetup();
 	
 	Map_Initialize();
-	//Sky_Initialize();
+	Sky_Initialize();
 	g_BgmId = LoadAudio("resource/sound/waking beat.wav");
 	g_EnterSeId = LoadAudio("resource/sound/start_engine.wav");
 	PlayAudio(g_BgmId, true);
@@ -72,7 +76,7 @@ void Title_Finalize()
 	//Texture_AllRelease();
 	UnloadAudio(g_EnterSeId);
 	UnloadAudio(g_BgmId);
-	//Sky_Finalize();
+	Sky_Finalize();
 	Map_Finalize();
 	Player_Finalize();
 	PlayerCamera_Finalize();
@@ -85,6 +89,7 @@ void Title_Update(double elapsed_time)
 
 	g_CrpProgress += (float)elapsed_time / g_CrpDuration;
 	g_CrpProgress -= floorf(g_CrpProgress); // keep 0..1 (loop)
+	//g_CrpProgress = clamp(g_CrpProgress, 0.0f, 1.0f);  // only 0..1 once (not loop)
 
 	Pad_Update();
 	//Player_Update(elapsed_time);
@@ -104,8 +109,8 @@ void Title_Update(double elapsed_time)
 	}
 
 	if (g_TitleFadeStart) {
-		AudioFade(g_EnterSeId, elapsed_time / 3.0f);
-		AudioFade(g_BgmId, elapsed_time / 3.0f);
+		AudioFade(g_EnterSeId, static_cast<unsigned short>(elapsed_time / 3.0f));
+		AudioFade(g_BgmId, static_cast<unsigned short>(elapsed_time / 3.0f));
 	}
 
     if (Fade_GetState() == FADE_STATE_FINISHED_OUT)
@@ -128,7 +133,7 @@ void Title_Update(double elapsed_time)
 		XMFLOAT3 off = crp.GetPosition(g_CrpProgress);
 		float offY = 0.5f;
 
-		// ‚‚³‚Æ g­‚µˆø‚­h ‚ð‚±‚±‚ÅŒˆ‚ß‚éiƒJƒƒ‰‘¤‚Å‘«‚³‚È‚¢j
+		// move the camera a bit higher
 		XMFLOAT3 camPos = { p.x + off.x, p.y + offY, p.z + off.z };
 
 		PlayerCamera_SetPosition(camPos);
@@ -136,12 +141,11 @@ void Title_Update(double elapsed_time)
 		PlayerCamera_Update(elapsed_time);
 	}
 
+	Sky_SetPosition(Player_GetPosition());
 }
 
 void Title_Draw()
 {
-
-	
 
 	XMFLOAT4X4 mtxView = g_IsDebug ? Camera_GetMatrix() : PlayerCamera_GetViewMatrix();
 
@@ -152,16 +156,18 @@ void Title_Draw()
 
 	Camera_SetMatrix(view, proj);
 
+	Sampler_SetFilterAnisotropic();
+
 	Direct3D_SetDepthEnable(false);
-	//Sky_Draw();
+	Sky_Draw();
 	Direct3D_SetDepthEnable(true);
 
-	Sampler_SetFilterAnisotropic();
 
 	Player_Draw();
 
 	Map_Draw();
-	
+	Map_DrawNormal();
+
 	light_SetAmbient({ 0.2f, 0.2f, 0.2f });
 	light_SetDirectionalWorld({ 0.0f, -1.0f, 0.0f, 0.0f }, { 0.2f,0.2f,0.2f, 1.0f });
 
@@ -208,7 +214,7 @@ static void CameraRowMovementSetup() {
 	const int N = 16;      // must be >= 8 and 4's multiply, higher is smoother
 	const float radius = 1.0f; // how far away from player
 
-	// N points with 3 points in the end for last segment
+	// N points with 3 points in the end for last segment for looping
 	for (int i = 0; i < N + 3; ++i) 
 	{
 		int point = i % N;						// fix into 0..N-1

@@ -255,10 +255,13 @@ void ModelDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld)
 
 void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld)
 {
+	// シェーダーを描画パイプラインに設定
 	Shader3DUnlit_Begin();
 
+	// プリミティブトポロジ設定
 	Direct3D_GetContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// 頂点シェーダーにワールド座標変換行列を設定
 	Shader3DUnlit_SetWorldMatrix(mtxWorld);
 
 	for (unsigned int m = 0; m < model->AiScene->mNumMeshes; m++)
@@ -269,7 +272,7 @@ void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld)
 
 		if (texture.length != 0) {
 			Direct3D_GetContext()->PSSetShaderResources(0, 1, &model->Texture[texture.data]);
-			Shader3DUnlit_SetColor({ 0.5f,0.5f,0.5f, 1.0f });
+			Shader3DUnlit_SetColor({ 0.2f,0.2f,0.2f, 1.0f });
 
 		}
 		else {
@@ -280,12 +283,15 @@ void ModelUnlitDraw(MODEL* model, const DirectX::XMMATRIX& mtxWorld)
 
 		}
 
+		// 頂点バッファを描画パイプラインに設定
 		UINT stride = sizeof(Vertex3D);
 		UINT offset = 0;
 		Direct3D_GetContext()->IASetVertexBuffers(0, 1, &model->VertexBuffer[m], &stride, &offset);
 
+		// インデックスバッファを描画パイプラインに設定
 		Direct3D_GetContext()->IASetIndexBuffer(model->IndexBuffer[m], DXGI_FORMAT_R32_UINT, 0);
 
+		// ポリゴン描画命令発行
 		Direct3D_GetContext()->DrawIndexed(model->AiScene->mMeshes[m]->mNumFaces * 3, 0, 0); // g_pContext->Draw(NUM_VERTEX, 0);
 	}
 }

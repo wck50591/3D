@@ -20,6 +20,11 @@ T clamp(T l, T r1, T r2) {
 	return l;
 }
 
+template <typename T>
+T lerp(T l, T r, T t) {
+	return l + (r - l) * t;
+}
+
 // get the number with power
 // O(n)
 template <typename T>

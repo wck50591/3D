@@ -30,7 +30,7 @@ void Emitter::Update(double elapsed_time)
 	}
 
 	// Žõ–½
-	for (int i = m_count -1; i >= 0; i--) {
+	for (int i = static_cast<int>(m_count -1); i >= 0; i--) {
 		if (m_particles[i]->IsDestroy()) {
 			delete m_particles[i];
 			m_particles[i] = m_particles[--m_count];

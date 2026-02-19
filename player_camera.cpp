@@ -35,7 +35,7 @@ void PlayerCamera_Finalize()
 
 }
 
-void PlayerCamera_Update(double elapsed_time)
+void PlayerCamera_Update(double)
 {
 
 	// ここは “セットされたカメラ位置” を使う

@@ -150,7 +150,6 @@
     <ClCompile Include="bullet_hit_effect.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="catmull_rom_spline.cpp" />
-    <ClCompile Include="circle.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="crosshair.cpp" />
     <ClCompile Include="cube.cpp" />
@@ -195,6 +194,7 @@
     <ClCompile Include="shader_billboard.cpp" />
     <ClCompile Include="shader_field.cpp" />
     <ClCompile Include="shader_post.cpp" />
+    <ClCompile Include="shader_sprite_effect.cpp" />
     <ClCompile Include="sky.cpp" />
     <ClCompile Include="sprite.cpp" />
     <ClCompile Include="sprite_anim.cpp" />
@@ -213,7 +213,6 @@
     <ClInclude Include="bullet_hit_effect.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="catmull_rom_spline.h" />
-    <ClInclude Include="circle.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="crosshair.h" />
     <ClInclude Include="cube.h" />
@@ -260,6 +259,7 @@
     <ClInclude Include="shader_billboard.h" />
     <ClInclude Include="shader_field.h" />
     <ClInclude Include="shader_post.h" />
+    <ClInclude Include="shader_sprite_effect.h" />
     <ClInclude Include="sky.h" />
     <ClInclude Include="sprite.h" />
     <ClInclude Include="sprite_anim.h" />
@@ -272,6 +272,12 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shader_pixel_2d.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="shader_pixel_2d_effect.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -308,6 +314,12 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="shader_vertex_2d.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="shader_vertex_2d_effect.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>

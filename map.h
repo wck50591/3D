@@ -12,14 +12,6 @@
 #include <DirectXMath.h>
 #include "Collision.h"
 
-void Map_Initialize();
-void Map_Finalize();
-
-//void Map_Update(double elapsed_time);
-void Map_Draw();
-
-int Map_GetObjectsCount();
-
 enum ObjectKind {
 	FIELD,
 	IV,
@@ -34,6 +26,22 @@ struct MapObject {
 	DirectX::XMFLOAT3 Position;
 	AABB Aabb;
 };
+
+enum class DrawPass {
+	EFFECT,
+	NORMAL
+};
+
+void Map_Initialize();
+void Map_Finalize();
+
+//void Map_Update(double elapsed_time);
+void Map_Draw();
+void Map_DrawNormal();
+
+int Map_GetObjectsCount();
+
+
 
 const MapObject* Map_GetObject(int index);
 

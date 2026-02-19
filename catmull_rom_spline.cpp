@@ -31,7 +31,7 @@ XMFLOAT3 CatmullRomSpline::GetPosition(float dt) const
 		return {};
 	}
 
-	// get the start or end?
+	// get from 0 to 1 with elapsed time
 	dt = clamp(dt, 0.0f, 1.0f);
 
 	// for calculate the segement base on the points in vector
@@ -39,7 +39,7 @@ XMFLOAT3 CatmullRomSpline::GetPosition(float dt) const
 	// 
 	// the first segment is start from 0
 	// 4 points = 1 segment, 5 points = 2 segment, 6 points = 3 segment...
-	int segmentCount = m_Points.size() - 3;
+	int segmentCount = static_cast<int>(m_Points.size() - 3);
 
 	// get the run time based on t (elpased time (detla time))
 	// to get the current segment calculated later
@@ -111,9 +111,9 @@ XMFLOAT3 CatmullRomSpline::GetPosition(float dt) const
 	float t2 = t * t;
 	float t3 = t2 * t;
 
-	position.x = 0.5 * (t3 * A.x + t2 * B.x + t * C.x + D.x);
-	position.y = 0.5 * (t3 * A.y + t2 * B.y + t * C.y + D.y);
-	position.z = 0.5 * (t3 * A.z + t2 * B.z + t * C.z + D.z);
+	position.x = static_cast<float>(0.5 * (t3 * A.x + t2 * B.x + t * C.x + D.x));
+	position.y = static_cast<float>(0.5 * (t3 * A.y + t2 * B.y + t * C.y + D.y));
+	position.z = static_cast<float>(0.5 * (t3 * A.z + t2 * B.z + t * C.z + D.z));
 
 	return position; //position
 }

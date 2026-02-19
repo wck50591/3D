@@ -24,14 +24,7 @@ using namespace DirectX;
 
 #include "Xinput.h"
 #pragma comment(lib, "xinput.lib")
-
-
-static constexpr float TILE = 50.0f;
-static constexpr float HALF_X = 0.2f;
-static constexpr float HALF_Z = 0.5f;
-static constexpr float HEIGHT = 0.5f;
-static constexpr int SLOW_NUMBER = 3;
-static constexpr double SLOW_INVERSE_TIME = 3.0;
+#include "pad_input.h"
 
 static int g_CarTurnId = -1;
 static int g_CarMovingId = -1;
@@ -57,12 +50,13 @@ static bool g_IsSlowMo = false;
 static double g_SlowTime = 0.0f;
 static int g_SlowTimeNumber = SLOW_NUMBER;
 static float g_SlowInverseStrength = 0.0f;
+static float g_Gamma = 1.0f;
 
 static float GetLeftStickX();
 
 void Player_Initialize(const XMFLOAT3& position, const XMFLOAT3& front)
 {
-
+	//Pad_Reset();
 
 	g_CarTurnId = LoadAudio("resource/sound/car_turn.wav");
 	g_CarMovingId = LoadAudio("resource/sound/car_moving.wav");
@@ -87,6 +81,8 @@ void Player_Initialize(const XMFLOAT3& position, const XMFLOAT3& front)
 	g_SlowTimeNumber = SLOW_NUMBER;
 	g_SlowInverseStrength = 0.0f;
 
+	g_Gamma = 1.0f;
+
 	g_pPlayerModel = ModelLoad("resource/model/car_body.fbx", 0.1f, false);
 }
 
@@ -101,6 +97,8 @@ void Player_Finalize()
 
 void Player_Update(double elapsed_time)
 {
+	//Pad_Update();
+
 	double o_elapsed = elapsed_time;
 	double s_elapsed = elapsed_time;
 
@@ -122,7 +120,7 @@ void Player_Update(double elapsed_time)
 		// SLOW MOTION
 		//------------------------
 
-		if (KeyLogger_IsTrigger(KK_SPACE)) {
+		if (KeyLogger_IsTrigger(KK_SPACE) || Pad_IsTrigger((uint16_t)XINPUT_GAMEPAD_X)) {
 			if (!g_IsSlowMo && g_SlowTimeNumber != 0) {
 				g_SlowTimeNumber--;
 				g_IsSlowMo = !g_IsSlowMo;
@@ -134,7 +132,7 @@ void Player_Update(double elapsed_time)
 			g_SlowTime += o_elapsed;
 
 			float fade = 0.5f;
-			float fadeOutTime = SLOW_INVERSE_TIME - fade;
+			float fadeOutTime = static_cast<float>(SLOW_INVERSE_TIME - fade);
 
 			if (g_SlowTime < fade) { // < 1
 
@@ -142,7 +140,7 @@ void Player_Update(double elapsed_time)
 				float t = static_cast<float>(g_SlowTime) / fade;
 				t = clamp(t, 0.0f, 1.0f);
 				g_SlowInverseStrength = EaseOutQuint(t);
-
+				g_Gamma = lerp(1.0f, 0.3f, EaseOutQuint(t));
 			}
 			else if (g_SlowTime < fadeOutTime) { // < 2
 
@@ -156,14 +154,17 @@ void Player_Update(double elapsed_time)
 				t /= fade;
 				t = clamp(t, 0.0f, 1.0f);
 				g_SlowInverseStrength = 1.0f - EaseOutQuint(t);
+				g_Gamma = lerp(0.3f, 1.0f, EaseOutQuint(t));
 			}
 			else {
 				g_IsSlowMo = !g_IsSlowMo;
 				g_SlowTime = 0.0;
 				g_SlowInverseStrength = 0.0f;
+				
 			}
 
-			PostEffect_InverseColor(g_SlowInverseStrength);
+			PostEffect_SetInverseColor(g_SlowInverseStrength);
+			PostEffect_SetGamma(g_Gamma);
 		}
 
 		float target = g_IsSlowMo ? 0.25f : 1.0f;

@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "shader3d.h"
 #include "shader3d_unlit.h"
+#include "shader_sprite_effect.h"
 #include "shader_post.h"
 #include "post_effect.h"
 #include "sampler.h"
@@ -56,7 +57,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Direct3D_Initialize(hWnd);
 	Shader_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Shader3D_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
-	//Shader3DUnlit_Initialize();
+	Shader3DUnlit_Initialize();
 	ShaderPost_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Sampler_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
 	Texture_Initialize(Direct3D_GetDevice(), Direct3D_GetContext());
@@ -129,25 +130,26 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 				Mouse_Update();
 
 				Scene_Update(elapsed_time);
-				//SpriteAnim_Update(elapsed_time);
 				Fade_Update(elapsed_time);
 
 				PostEffect_Clear();
 				Scene_Draw();
 
-				//ƒQ[ƒ€‚ÌŠG‰æ
 				Direct3D_Clear();
 				PostEffect_Begin();
+				PostEffect_Draw();
 				PostEffect_End();
+
+				Scene_DrawNormal();
 
 				Sprite_Begin();
 				Fade_Draw();
 
 
 #if defined(DEBUG) || defined(_DEBUG)
-				//if (KeyLogger_IsTrigger(KK_F1)) {
-				//	Imgui_Toggle();
-				//}
+				if (KeyLogger_IsTrigger(KK_F1)) {
+					Imgui_Toggle();
+				}
 				Imgui_Show();
 				std::stringstream ss;
 				
@@ -183,19 +185,10 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _
 	Texture_Finalize();
 	Sampler_Finalize();
 	ShaderPost_Finalize();
-	//Shader3DUnlit_Finalize();
+	Shader3DUnlit_Finalize();
 	Shader3D_Finalize();
 	Shader_Finalize();
 	Direct3D_Finalize();
-
-	//check using resource
-	/*IDXGIDebug1* dxgiDebug = nullptr;
-	HRESULT hr = DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug));
-	if (SUCCEEDED(hr))
-	{
-		dxgiDebug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-		dxgiDebug->Release();
-	}*/
 	UninitAudio();
 	//Mouse_Finalize();
 	Mouse_Finalize();
